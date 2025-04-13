@@ -9,7 +9,6 @@ import Foundation
 
 class DependencyContainer: ObservableObject {
     static let shared = DependencyContainer()
-    
+
     var networkProvider = NetworkProvider()
-    
 }

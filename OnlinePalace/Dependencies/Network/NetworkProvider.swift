@@ -17,7 +17,10 @@ class NetworkProvider {
         self.urlSession = URLSession(configuration: configuration)
         self.jsonDecoder = JSONDecoder()
         self.jsonEncoder = JSONEncoder()
-        self.baseURL = URL.init(string: "http://127.0.0.1:8000")
+        self.baseURL = URL.init(string: "http://127.0.0.1:8000/api")
+        
+        self.jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
+        self.jsonEncoder.keyEncodingStrategy = .convertToSnakeCase
     }
 
     func request<T: ServiceEndpointDefining>(_ endpoint: T) async throws -> T.ResponseBody {
@@ -46,7 +49,6 @@ class NetworkProvider {
                 throw NetworkError.encodingError(error)
             }
         }
-
 
         let data: Data
         let response: URLResponse
