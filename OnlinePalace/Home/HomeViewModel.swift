@@ -11,7 +11,10 @@ class HomeViewModel: ObservableObject {
     @Published var name = ""
     @Published var showJoinGameField = false
     @Published var joinGameId = ""
+    @Published var isLoading = false
     
+    @Published var shouldNavigateToGameLobby = false
+        
     var isNameValid: Bool {
         name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
     }
@@ -29,9 +32,22 @@ class HomeViewModel: ObservableObject {
     }
     
     func createGame() {
+        isLoading = true
         let endpoint = CreateGameEndpoint(requestBody: .init(playerName: name))
         Task {
-            let response = try? await DependencyContainer.shared.networkProvider.request(endpoint)
+            do {
+                let response = try await DependencyContainer.shared.networkProvider.request(endpoint)
+                joinGameId = response.gameId
+                shouldNavigateToGameLobby = true
+            } catch {
+                // show error alert here
+            }
+            
+            isLoading = false
         }
+    }
+    
+    func createGameLobbyViewModel() -> GameLobbyViewModel {
+        GameLobbyViewModel(gameId: joinGameId, playerName: name)
     }
 }

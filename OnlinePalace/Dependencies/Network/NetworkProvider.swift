@@ -17,7 +17,7 @@ class NetworkProvider {
         self.urlSession = URLSession(configuration: configuration)
         self.jsonDecoder = JSONDecoder()
         self.jsonEncoder = JSONEncoder()
-        self.baseURL = URL.init(string: "http://127.0.0.1:8000/api")
+        self.baseURL = URL.init(string: "https://palacedev.vishalpolepalli.com/api")
         
         self.jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
         self.jsonEncoder.keyEncodingStrategy = .convertToSnakeCase
