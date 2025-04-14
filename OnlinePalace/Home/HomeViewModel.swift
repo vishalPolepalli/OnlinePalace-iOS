@@ -31,23 +31,23 @@ class HomeViewModel: ObservableObject {
         }
     }
     
+    @MainActor
     func createGame() {
         isLoading = true
         let endpoint = CreateGameEndpoint(requestBody: .init(playerName: name))
         Task {
             do {
                 let response = try await DependencyContainer.shared.networkProvider.request(endpoint)
-                joinGameId = response.gameId
                 shouldNavigateToGameLobby = true
+                
+                DependencyContainer.shared.gameManager.setupAndConnect(playerId: response.playerId,
+                                                                       gameId: response.gameId,
+                                                                       playerName: name)
             } catch {
                 // show error alert here
             }
             
             isLoading = false
         }
-    }
-    
-    func createGameLobbyViewModel() -> GameLobbyViewModel {
-        GameLobbyViewModel(gameId: joinGameId, playerName: name)
     }
 }

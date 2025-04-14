@@ -99,5 +99,5 @@ struct GameLobbyView: View {
     }
 }
 #Preview {
-    GameLobbyView(viewModel: .init(gameId: "1234", playerName: "Test Player"))
+    GameLobbyView(viewModel: .init())
 }

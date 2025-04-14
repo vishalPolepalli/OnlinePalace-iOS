@@ -16,7 +16,7 @@ struct HomeView: View {
         } else {
             mainView
                 .navigationDestination(isPresented: $viewModel.shouldNavigateToGameLobby) {
-                    GameLobbyView(viewModel: viewModel.createGameLobbyViewModel())
+                    GameLobbyView(viewModel: .init())
                         .navigationBarHidden(true)
                 }
         }

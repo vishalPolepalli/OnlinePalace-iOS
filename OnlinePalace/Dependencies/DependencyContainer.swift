@@ -10,5 +10,14 @@ import Foundation
 class DependencyContainer: ObservableObject {
     static let shared = DependencyContainer()
 
-    var networkProvider = NetworkProvider()
+    var networkProvider: NetworkProvider
+    var webSocketProvider: WebSocketNetworkProvider
+    
+    var gameManager: GameManager
+    
+    init() {
+        self.networkProvider = NetworkProvider()
+        self.webSocketProvider = WebSocketNetworkProvider()
+        self.gameManager = GameManager(webSocketProvider: self.webSocketProvider)
+    }
 }

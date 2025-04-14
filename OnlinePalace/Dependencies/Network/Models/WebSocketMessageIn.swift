@@ -12,11 +12,12 @@ struct WebSocketMessageIn: Codable {
     let payload: Payload?
     
     struct Payload: Codable {
-        let gameId: String
+        let gameId: String?
         let players: [Player]?
+        let playerName: String?
     }
     
-    enum MessageType: Codable {
+    enum MessageType: String, Codable {
         case GAME_UPDATE
         case PLAYER_JOINED
         case YOUR_TURN
