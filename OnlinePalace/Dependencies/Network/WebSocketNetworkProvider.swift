@@ -85,6 +85,8 @@ class WebSocketNetworkProvider: ObservableObject {
             self.webSocketUpdateSubject.send(message)
         } catch {
             print("WebSocket: Failed to decode message: \(error)")
+            
+            self.webSocketUpdateSubject.send(completion: .failure(error))
         }
     }
 

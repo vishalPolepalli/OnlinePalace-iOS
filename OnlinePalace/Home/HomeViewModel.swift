@@ -31,23 +31,47 @@ class HomeViewModel: ObservableObject {
         }
     }
     
-    @MainActor
     func createGame() {
         isLoading = true
         let endpoint = CreateGameEndpoint(requestBody: .init(playerName: name))
         Task {
             do {
                 let response = try await DependencyContainer.shared.networkProvider.request(endpoint)
-                shouldNavigateToGameLobby = true
-                
                 DependencyContainer.shared.gameManager.setupAndConnect(playerId: response.playerId,
                                                                        gameId: response.gameId,
                                                                        playerName: name)
+                await MainActor.run {
+                    shouldNavigateToGameLobby = true
+                }
+                
             } catch {
                 // show error alert here
             }
             
-            isLoading = false
+            await MainActor.run {
+                isLoading = false
+            }
+        }
+    }
+    
+    func joinGame() {
+        isLoading = true
+        let endpoint = JoinGameEndpoint(gameId: joinGameId, requestBody: .init(playerName: name))
+        Task {
+            do {
+                let response = try await DependencyContainer.shared.networkProvider.request(endpoint)
+                DependencyContainer.shared.gameManager.setupAndConnect(playerId: response.playerId, gameId: joinGameId, playerName: name)
+                
+                await MainActor.run {
+                    shouldNavigateToGameLobby = true
+                }
+            } catch {
+                // show error alert her
+            }
+            
+            await MainActor.run {
+                isLoading = false
+            }
         }
     }
 }

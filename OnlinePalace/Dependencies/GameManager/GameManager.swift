@@ -39,7 +39,7 @@ class GameManager: ObservableObject {
                     return
                 }
                 
-                if value.type == .GAME_UPDATE {
+                if value.type == .GAME_UPDATE  {
                     if let players = payload.players {
                         self?.players = players
                         
@@ -55,6 +55,13 @@ class GameManager: ObservableObject {
                 } else if value.type == .PLAYER_JOINED {
                     guard let newName = payload.playerName else { return }
                     self?.playerNames.append(newName)
+                } else if value.type == .CONNECTION_ESTABLISHED {
+                    guard let players = payload.players else { return }
+                    self?.players = players
+                    
+                    self?.playerNames = players.map { player in
+                        player.name
+                    }
                 }
 
                 self?.type = value.type
@@ -65,6 +72,29 @@ class GameManager: ObservableObject {
             .receive(on: RunLoop.main)
             .assign(to: \.connectionStatus, on: self)
             .store(in: &cancellables)
+    }
+    
+    private func handleUpdate(message: WebSocketMessageIn) {
+        switch message.type {
+        case .GAME_UPDATE:
+            <#code#>
+        case .PLAYER_JOINED:
+            <#code#>
+        case .YOUR_TURN:
+            // TODO:
+            return
+        case .CONNECTION_ESTABLISHED:
+            <#code#>
+        }
+    }
+    
+    private func updatePlayers(payload: WebSocketMessageIn.Payload) {
+        guard let players = payload.players else { return }
+        self.players = players
+        
+        self.playerNames = players.map { player in
+            player.name
+        }
     }
 
     func setupAndConnect(playerId: String, gameId: String, playerName: String) {

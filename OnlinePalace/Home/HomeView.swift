@@ -94,7 +94,7 @@ struct HomeView: View {
                 .disableAutocorrection(true)
             
             Button {
-                
+                viewModel.joinGame()
             } label: {
                 Text(Constants.joinWithId)
                     .frame(maxWidth: .infinity)
