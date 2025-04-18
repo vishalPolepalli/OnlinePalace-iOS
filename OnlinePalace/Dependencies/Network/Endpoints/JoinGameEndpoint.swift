@@ -9,11 +9,9 @@ import Foundation
 
 struct JoinGameEndpoint: ServiceEndpointDefining {
     typealias RequestBody = JoinGameRequest
-    
     typealias ResponseBody = JoinGameResponse
     
     var method = HTTPMethod.post
-    
     var requestBody: RequestBody?
     var path: String
 

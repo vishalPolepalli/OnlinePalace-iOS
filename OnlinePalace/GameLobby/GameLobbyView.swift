@@ -89,6 +89,7 @@ struct GameLobbyView: View {
                 .foregroundColor(.secondary)
             
             Button {
+                viewModel.startGame()
             } label: {
                 Text("Start Game")
                     .frame(maxWidth: .infinity)

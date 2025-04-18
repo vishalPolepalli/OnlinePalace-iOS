@@ -28,6 +28,8 @@ extension GameManager {
             handleGameUpdate(payload: message.payload)
         case .PLAYER_JOINED:
             handleNewPlayer(payload: message.payload)
+        case .GAME_STARTED:
+            handleGameUpdate(payload: message.payload)
         case .YOUR_TURN:
             // TODO
             return

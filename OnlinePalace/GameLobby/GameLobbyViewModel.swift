@@ -16,7 +16,7 @@ class GameLobbyViewModel: ObservableObject {
     
     @Published var isLoading = false
     @Published var statusMessage = "Waiting for players..."
-    
+    @Published var shouldNavigateToGame = false
     @Published var playerList: [String] = []
 
     init() {
@@ -26,6 +26,16 @@ class GameLobbyViewModel: ObservableObject {
         playerList.append(playerName)
         
         setUpPublisher()
+    }
+    
+    func startGame() {
+        Task {
+            let gameStarted = await DependencyContainer.shared.gameManager.startGame()
+            
+            await MainActor.run {
+                shouldNavigateToGame = gameStarted
+            }
+        }
     }
     
     private func setUpPublisher() {

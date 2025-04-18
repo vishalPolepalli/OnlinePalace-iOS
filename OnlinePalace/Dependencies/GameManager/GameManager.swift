@@ -53,7 +53,19 @@ class GameManager: ObservableObject {
         // GameManager will only be deallocated when app is closed
         cancellables.removeAll()
     }
-
+    
+    func startGame() async -> Bool {
+        guard let gameId else { return false }
+        let endpoint = StartGameEndpoint(gameId: gameId)
+        
+        do {
+            try await _ = DependencyContainer.shared.networkProvider.request(endpoint)
+            return true
+        } catch {
+            // TODO: Handle error here
+            return false
+        }
+    }
 
     private func subscribeToWebSocketUpdates(useAsyncStream: Bool = false) {
         if useAsyncStream {

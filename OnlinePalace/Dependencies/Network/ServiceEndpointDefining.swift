@@ -26,3 +26,4 @@ enum HTTPMethod: String {
 }
 
 struct EmptyResponse: Codable {}
+struct EmptyRequest: Codable {}

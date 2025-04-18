@@ -22,5 +22,6 @@ struct WebSocketMessageIn: Codable {
         case PLAYER_JOINED
         case YOUR_TURN
         case CONNECTION_ESTABLISHED
+        case GAME_STARTED
     }
 }
