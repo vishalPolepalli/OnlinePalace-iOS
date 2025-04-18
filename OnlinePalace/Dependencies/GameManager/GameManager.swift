@@ -16,6 +16,7 @@ class GameManager: ObservableObject {
     
     private var webSocketProvider: WebSocketNetworkProvider
     private var cancellables = Set<AnyCancellable>()
+    private let queue = DispatchQueue(label: "com.vishal.OnlinePalace.gameManager", qos: .userInitiated)
 
     @Published var players: [Player] = []
     @Published var playerNames: [String] = []
@@ -79,7 +80,7 @@ class GameManager: ObservableObject {
     
     private func subscribeWithPassthroughSubject() {
         webSocketProvider.passthroughSubject
-            .receive(on: RunLoop.main)
+            .receive(on: queue)
             .sink(receiveCompletion: { completion in
                 if case .failure(_) = completion {
                      // TODO: Show an error?
