@@ -14,7 +14,7 @@ struct WebSocketMessageIn: Codable {
     struct Payload: Codable {
         let gameId: String?
         let players: [Player]?
-        let playerName: String?
+        let newPlayer: Player?
     }
     
     enum MessageType: String, Codable {

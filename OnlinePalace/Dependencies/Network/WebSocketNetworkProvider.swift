@@ -11,32 +11,42 @@ import Combine
 class WebSocketNetworkProvider: ObservableObject {
     private var webSocketTask: URLSessionWebSocketTask?
     private var urlSession: URLSession
+    private var useAsyncStream = true
+    private var continuation: AsyncStream<WebSocketResult>.Continuation?
+
+    let passthroughSubject = PassthroughSubject<WebSocketResult, Error>()
+    var stream: AsyncStream<WebSocketResult>?
     
-    let webSocketUpdateSubject = PassthroughSubject<WebSocketMessageIn, Error>()
-
-    @Published var isConnected: Bool = false
-
     init() {
         self.urlSession = URLSession(configuration: .default)
+    }
+    
+    /// This function can be used to switch to `PassthroughSubject` publisher.
+    /// By default `WebSocketProvider` uses `AsyncStream`
+    func usePassthroughSubject(_ value: Bool = true) {
+        useAsyncStream = value
     }
 
     func connect(url: URL) {
         disconnect()
-
-        print("WebSocket: Connecting to \(url)...")
-        
         webSocketTask = urlSession.webSocketTask(with: url)
         webSocketTask?.resume()
         listenForMessages()
+        emitWebSocketResult(.connected)
         
-        isConnected = true
+        let (stream, continuation) = AsyncStream.makeStream(of: WebSocketResult.self)
+        self.stream = stream
+        self.continuation = continuation
     }
 
     func disconnect() {
-        print("WebSocket: Disconnecting...")
         webSocketTask?.cancel(with: .goingAway, reason: nil)
         webSocketTask = nil
-        isConnected = false
+        emitWebSocketResult(.connectionLost)
+        continuation?.finish()
+        continuation = nil
+        stream = nil
+        useAsyncStream = true
     }
 
     private func listenForMessages() {
@@ -47,30 +57,27 @@ class WebSocketNetworkProvider: ObservableObject {
 
             switch result {
             case .failure(let error):
-                print("WebSocket: Failed to receive message: \(error)")
-
-                self.isConnected = false
-                self.webSocketUpdateSubject.send(completion: .failure(error))
-
+                self.emitWebSocketResult(.failure(.serverError(error)))
             case .success(let message):
-                switch message {
-                case .string(let text):
-                    print("WebSocket: Received text message")
-                    
-                    if let data = text.data(using: .utf8) {
-                        self.decodeMessage(data: data)
-                    } else {
-                        print("WebSocket: Could not convert received text to data.")
-                    }
-                case .data(let data):
-                    print("WebSocket: Received binary message")
-                    
-                    self.decodeMessage(data: data)
-                @unknown default:
-                    print("WebSocket: Received unknown message type")
-                }
-                self.listenForMessages()
+                self.handleMessage(message)
             }
+            self.listenForMessages()
+        }
+    }
+    
+    private func handleMessage(_ message: URLSessionWebSocketTask.Message) {
+        switch message {
+        case .string(let string):
+            guard let data = string.data(using: .utf8) else {
+                emitWebSocketResult(.failure(.failedDataConversion))
+                return
+            }
+            self.decodeMessage(data: data)
+        case .data(let data):
+            self.decodeMessage(data: data)
+        @unknown default:
+            emitWebSocketResult(.failure(.messageTypeNotSupported))
+            return
         }
     }
 
@@ -80,13 +87,17 @@ class WebSocketNetworkProvider: ObservableObject {
         
         do {
             let message = try decoder.decode(WebSocketMessageIn.self, from: data)
-            print("WebSocket: Received message of type: \(message.type)")
-
-            self.webSocketUpdateSubject.send(message)
+            emitWebSocketResult(.success(message))
         } catch {
-            print("WebSocket: Failed to decode message: \(error)")
-            
-            self.webSocketUpdateSubject.send(completion: .failure(error))
+            emitWebSocketResult(.failure(.failedToDecode(error)))
+        }
+    }
+    
+    private func emitWebSocketResult(_ result: WebSocketResult) {
+        if useAsyncStream {
+            continuation?.yield(result)
+        } else {
+            passthroughSubject.send(result)
         }
     }
 
@@ -119,4 +130,18 @@ class WebSocketNetworkProvider: ObservableObject {
             print("WebSocket: Failed to encode message: \(error)")
         }
     }
+}
+
+enum WebSocketError: Error {
+    case messageTypeNotSupported
+    case failedDataConversion
+    case failedToDecode(Error)
+    case serverError(Error)
+}
+
+enum WebSocketResult {
+    case success(WebSocketMessageIn)
+    case failure(WebSocketError)
+    case connectionLost
+    case connected
 }
