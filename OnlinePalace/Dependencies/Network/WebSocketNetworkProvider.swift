@@ -13,6 +13,8 @@ class WebSocketNetworkProvider: ObservableObject {
     private var urlSession: URLSession
     private var useAsyncStream = true
     private var continuation: AsyncStream<WebSocketResult>.Continuation?
+    private var pingTimer: Timer?
+    private let timerQueue = DispatchQueue(label: "com.vishal.OnlinePalace.pingTimer", qos: .userInitiated)
 
     let passthroughSubject = PassthroughSubject<WebSocketResult, Error>()
     var stream: AsyncStream<WebSocketResult>?
@@ -37,6 +39,7 @@ class WebSocketNetworkProvider: ObservableObject {
         disconnect()
         webSocketTask = urlSession.webSocketTask(with: url)
         webSocketTask?.resume()
+        schedulePing(interval: 30)
         listenForMessages()
         emitWebSocketResult(.connected)
         
@@ -53,6 +56,25 @@ class WebSocketNetworkProvider: ObservableObject {
         continuation = nil
         stream = nil
         useAsyncStream = true
+        cancelPing()
+    }
+    
+    private func schedulePing(interval: TimeInterval) {
+        timerQueue.async {
+            self.pingTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+                self?.sendPing()
+            }
+            RunLoop.current.run()
+        }
+    }
+
+    private func sendPing() {
+        webSocketTask?.sendPing { _ in }
+    }
+
+    private func cancelPing() {
+        pingTimer?.invalidate()
+        pingTimer = nil
     }
 
     private func listenForMessages() {
