@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUICore
 
 struct Player: Codable, Equatable {
     let id: String
@@ -21,10 +22,43 @@ struct Player: Codable, Equatable {
 
 struct Card: Codable, Equatable {
     let rank: String
-    let suit: String
+    let suit: Suit
     
     static func == (lhs: Card, rhs: Card) -> Bool {
         lhs.rank == rhs.rank && lhs.suit == rhs.suit
+    }
+    
+    enum Suit: String, Codable {
+        case hearts = "H"
+        case clubs = "C"
+        case spades = "S"
+        case diamonds = "D"
+        
+        var symbol: String {
+            switch self {
+            case .hearts:
+                "♥️"
+            case .clubs:
+                "♣️"
+            case .spades:
+                "♠️"
+            case .diamonds:
+                "♦️"
+            }
+        }
+        
+        var color: Color {
+            switch self {
+            case .hearts:
+                    .red
+            case .clubs:
+                    .black
+            case .spades:
+                    .black
+            case .diamonds:
+                    .red
+            }
+        }
     }
 }
 
