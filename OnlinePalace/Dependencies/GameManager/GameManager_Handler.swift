@@ -49,6 +49,7 @@ extension GameManager {
               players.contains(player)  == false else { return }
         // Not sure if need to remove the player and add them again
         players.append(player)
+        playerNames.append(player.name)
     }
     
     // Not sure if this is really needed???

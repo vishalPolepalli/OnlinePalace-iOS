@@ -39,7 +39,8 @@ class HomeViewModel: ObservableObject {
                 let response = try await DependencyContainer.shared.networkProvider.request(endpoint)
                 DependencyContainer.shared.gameManager.setupAndConnect(playerId: response.playerId,
                                                                        gameId: response.gameId,
-                                                                       playerName: name)
+                                                                       playerName: name,
+                                                                       useAsyncStream: true)
                 await MainActor.run {
                     shouldNavigateToGameLobby = true
                 }
@@ -60,7 +61,7 @@ class HomeViewModel: ObservableObject {
         Task {
             do {
                 let response = try await DependencyContainer.shared.networkProvider.request(endpoint)
-                DependencyContainer.shared.gameManager.setupAndConnect(playerId: response.playerId, gameId: joinGameId, playerName: name)
+                DependencyContainer.shared.gameManager.setupAndConnect(playerId: response.playerId, gameId: joinGameId, playerName: name, useAsyncStream: true)
                 
                 await MainActor.run {
                     shouldNavigateToGameLobby = true

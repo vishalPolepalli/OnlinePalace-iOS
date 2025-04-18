@@ -11,7 +11,7 @@ import Combine
 class GameManager: ObservableObject {
     
     enum Constants {
-        static let webSocketUrl = "wss://palacedev.vishalpolepalli.com/api/ws/game/"
+        static let webSocketPath = "/ws/game/"
     }
     
     private var webSocketProvider: WebSocketNetworkProvider
@@ -30,19 +30,12 @@ class GameManager: ObservableObject {
     }
     
     func setupAndConnect(playerId: String, gameId: String, playerName: String, useAsyncStream: Bool = false) {
-        let urlString = "\(Constants.webSocketUrl)\(gameId)/\(playerId)"
-        
-        guard let url = URL(string: urlString) else {
-            // TODO: Show an error
-            return
-        }
-
         self.currentPlayerId = playerId
         self.currentPlayerName = playerName
         self.playerNames.append(playerName)
         self.gameId = gameId
 
-        webSocketProvider.connect(url: url)
+        webSocketProvider.connect(path: "\(Constants.webSocketPath)\(gameId)/\(playerId)")
         subscribeToWebSocketUpdates(useAsyncStream: useAsyncStream)
     }
 
@@ -68,6 +61,7 @@ class GameManager: ObservableObject {
             }
         } else {
             webSocketProvider.usePassthroughSubject()
+            subscribeWithPassthroughSubject()
         }
     }
     

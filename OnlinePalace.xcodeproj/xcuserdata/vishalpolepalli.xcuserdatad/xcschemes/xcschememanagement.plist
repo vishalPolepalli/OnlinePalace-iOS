@@ -4,10 +4,38 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>OnlinePalace.xcscheme_^#shared#^_</key>
+		<key>OnlinePalaceDev.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>1</integer>
+		</dict>
+		<key>OnlinePalaceProd.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
+		</dict>
+		<key>OnlinePalaceQA.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>69C876172DAC385A0012B1AE</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>69C876282DAC385B0012B1AE</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>69C876322DAC385B0012B1AE</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

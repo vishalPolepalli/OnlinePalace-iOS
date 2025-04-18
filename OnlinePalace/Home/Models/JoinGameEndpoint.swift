@@ -21,7 +21,7 @@ struct JoinGameEndpoint: ServiceEndpointDefining {
     var queryParameters: [String : String]? = nil
     
     init(gameId: String, requestBody: RequestBody) {
-        path = "games/\(gameId)/join"
+        path = "/games/\(gameId)/join"
         self.requestBody = requestBody
     }
 }

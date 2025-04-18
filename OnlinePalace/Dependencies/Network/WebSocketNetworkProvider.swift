@@ -16,18 +16,24 @@ class WebSocketNetworkProvider: ObservableObject {
 
     let passthroughSubject = PassthroughSubject<WebSocketResult, Error>()
     var stream: AsyncStream<WebSocketResult>?
+    var baseURL: String?
     
     init() {
         self.urlSession = URLSession(configuration: .default)
+        self.baseURL = ProcessInfo.processInfo.environment["WEBSOCKET_BASE_URL"]
     }
     
     /// This function can be used to switch to `PassthroughSubject` publisher.
     /// By default `WebSocketProvider` uses `AsyncStream`
     func usePassthroughSubject(_ value: Bool = true) {
-        useAsyncStream = value
+        // Why in god did I do it this way ugh
+        useAsyncStream = !value
     }
 
-    func connect(url: URL) {
+    func connect(path: String) {
+        guard let baseURL,
+              let url = URL(string: baseURL + path) else { return }
+        
         disconnect()
         webSocketTask = urlSession.webSocketTask(with: url)
         webSocketTask?.resume()
@@ -58,6 +64,7 @@ class WebSocketNetworkProvider: ObservableObject {
             switch result {
             case .failure(let error):
                 self.emitWebSocketResult(.failure(.serverError(error)))
+                disconnect()
             case .success(let message):
                 self.handleMessage(message)
             }
